@@ -1,6 +1,6 @@
 import { client } from "../prismicio";
 import HomePageClient from "./components/HomePageClient";
-import { defaultHomepageData, type HomepageData } from "./types";
+import { defaultHomepageData, type HomepageData, type HomepageSection } from "./types";
 import * as prismic from "@prismicio/client";
 
 // Fetch homepage content from Prismic at build time
@@ -12,11 +12,13 @@ async function getHomepageData(): Promise<HomepageData> {
     const data = doc.data as any;
 
     // Transform Prismic data into our HomepageData format
+    const navItemsRaw = data.nav_items?.map((item: any) => item.name).filter(Boolean);
     const homepageData: HomepageData = {
       promoBannerText: data.promo_banner_text || defaultHomepageData.promoBannerText,
       navItems:
-        data.nav_items?.map((item: any) => item.name).filter(Boolean) ||
-        defaultHomepageData.navItems,
+        navItemsRaw && navItemsRaw.length > 0
+          ? navItemsRaw
+          : defaultHomepageData.navItems,
       hero: {
         title: data.hero_title || defaultHomepageData.hero.title,
         titleAccent:
@@ -45,36 +47,58 @@ async function getHomepageData(): Promise<HomepageData> {
     };
 
     // Transform Slice Zone into sections
+    const prismicSections: HomepageSection[] = [];
     if (data.body && Array.isArray(data.body)) {
       for (const slice of data.body) {
         switch (slice.slice_type) {
-          case "category_grid":
-            homepageData.sections.push({
-              type: "category_grid",
-              categories: (slice.items || [])
-                .filter((item: any) => item.name || item.image?.url)
-                .map((item: any) => ({
-                  name: item.name || "",
-                  image: item.image?.url || "",
-                })),
-            });
+          case "category_grid": {
+            const categories = (slice.items || [])
+              .filter((item: any) => item.name || item.image?.url)
+              .map((item: any) => ({
+                name: item.name || "",
+                image: item.image?.url || "",
+              }));
+            if (categories.length > 0) {
+              prismicSections.push({
+                type: "category_grid",
+                categories,
+              });
+            }
             break;
+          }
 
-          case "features_strip":
-            homepageData.sections.push({
-              type: "features_strip",
-              features: (slice.items || [])
-                .filter((item: any) => item.title)
-                .map((item: any) => ({
-                  title: item.title || "",
-                  subtitle: item.subtitle || "",
-                  iconPath: item.icon_path || "",
-                })),
-            });
+          case "features_strip": {
+            const features = (slice.items || [])
+              .filter((item: any) => item.title)
+              .map((item: any) => ({
+                title: item.title || "",
+                subtitle: item.subtitle || "",
+                iconPath: item.icon_path || "",
+              }));
+            if (features.length > 0) {
+              prismicSections.push({
+                type: "features_strip",
+                features,
+              });
+            }
             break;
+          }
 
-          case "featured_products":
-            homepageData.sections.push({
+          case "featured_products": {
+            const products = (slice.items || [])
+              .filter((item: any) => item.name)
+              .map((item: any) => ({
+                badge: item.badge || "",
+                series: item.series || "",
+                name: item.name || "",
+                description: item.description || "",
+                rating: item.rating || 5,
+                reviews: item.reviews || 0,
+                currentPrice: item.current_price || "",
+                originalPrice: item.original_price || "",
+                image: item.image?.url || "",
+              }));
+            prismicSections.push({
               type: "featured_products",
               sectionTitle:
                 slice.primary?.section_title || "Featured",
@@ -83,24 +107,13 @@ async function getHomepageData(): Promise<HomepageData> {
               sectionSubtitle:
                 slice.primary?.section_subtitle ||
                 "Top-rated car audio gear from our most popular series",
-              products: (slice.items || [])
-                .filter((item: any) => item.name)
-                .map((item: any) => ({
-                  badge: item.badge || "",
-                  series: item.series || "",
-                  name: item.name || "",
-                  description: item.description || "",
-                  rating: item.rating || 5,
-                  reviews: item.reviews || 0,
-                  currentPrice: item.current_price || "",
-                  originalPrice: item.original_price || "",
-                  image: item.image?.url || "",
-                })),
+              products: products.length > 0 ? products : (defaultHomepageData.sections.find(s => s.type === "featured_products") as any)?.products || [],
             });
             break;
+          }
 
-          case "newsletter":
-            homepageData.sections.push({
+          case "newsletter": {
+            prismicSections.push({
               type: "newsletter",
               title: slice.primary?.title || "Sign Up And Save",
               description:
@@ -111,14 +124,24 @@ async function getHomepageData(): Promise<HomepageData> {
                 "By submitting this form and signing up for texts, you consent to receive marketing text messages from ABCDE.",
             });
             break;
+          }
         }
       }
     }
 
-    // If no sections were loaded from Prismic, use default data
-    if (homepageData.sections.length === 0) {
-      homepageData.sections = defaultHomepageData.sections;
+    // Merge: start with default sections, override with Prismic sections where they exist
+    const mergedSections = [...defaultHomepageData.sections];
+    for (const prismicSection of prismicSections) {
+      const defaultIndex = mergedSections.findIndex(
+        (s) => s.type === prismicSection.type
+      );
+      if (defaultIndex >= 0) {
+        mergedSections[defaultIndex] = prismicSection;
+      } else {
+        mergedSections.push(prismicSection);
+      }
     }
+    homepageData.sections = mergedSections;
 
     return homepageData;
   } catch (error) {
