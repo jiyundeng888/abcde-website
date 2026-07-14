@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Source_Serif_4, Inter } from "next/font/google";
+import { PrismicPreview } from "@prismicio/next";
+import { repositoryName } from "../prismicio";
 import "./globals.css";
 
 const sourceSerif = Source_Serif_4({
@@ -31,7 +33,10 @@ export default function RootLayout({
       lang="en"
       className={`${sourceSerif.variable} ${inter.variable} antialiased`}
     >
-      <body>{children}</body>
+      <body>
+        {children}
+        <PrismicPreview repositoryName={repositoryName} />
+      </body>
     </html>
   );
 }
