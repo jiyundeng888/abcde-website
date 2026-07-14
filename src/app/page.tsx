@@ -6,9 +6,14 @@ import * as prismic from "@prismicio/client";
 // Fetch homepage content from Prismic at build time
 async function getHomepageData(): Promise<HomepageData> {
   try {
-    // Fetch the single homepage document from Prismic
-    const doc = await client.getSingle("homepage");
-
+    // Fetch the homepage document from Prismic
+    // Using getAllByType because the custom type uses "page" format (repeatable)
+    const docs = await client.getAllByType("homepage");
+    if (!docs || docs.length === 0) {
+      console.log("No homepage document found in Prismic, using defaults");
+      return defaultHomepageData;
+    }
+    const doc = docs[0];
     const data = doc.data as any;
 
     // Transform Prismic data into our HomepageData format
