@@ -1,4 +1,4 @@
-import { client } from "../prismicio";
+import { createClient } from "../prismicio";
 import HomePageClient from "./components/HomePageClient";
 import { defaultHomepageData, type HomepageData, type HomepageSection } from "./types";
 import * as prismic from "@prismicio/client";
@@ -6,6 +6,8 @@ import * as prismic from "@prismicio/client";
 // Fetch homepage content from Prismic at build time (Prismic CMS integration)
 async function getHomepageData(): Promise<HomepageData> {
   try {
+    // Create a Prismic client with auto-preview support
+    const client = createClient();
     // Fetch the homepage document from Prismic
     // Using getAllByType because the custom type uses "page" format (repeatable)
     const docs = await client.getAllByType("homepage");
