@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "export",
+  // Use static export only when BUILD_STATIC=true (for Cloudflare deployment)
+  // In development mode (npm run dev), API routes are available for Prismic preview
+  ...(process.env.BUILD_STATIC === "true" ? { output: "export" } : {}),
   images: {
     unoptimized: true,
   },
