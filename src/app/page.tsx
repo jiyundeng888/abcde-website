@@ -3,7 +3,7 @@ import HomePageClient from "./components/HomePageClient";
 import { defaultHomepageData, type HomepageData, type HomepageSection } from "./types";
 import * as prismic from "@prismicio/client";
 
-// Fetch homepage content from Prismic at build time
+// Fetch homepage content from Prismic at build time (Prismic CMS integration)
 async function getHomepageData(): Promise<HomepageData> {
   try {
     // Fetch the homepage document from Prismic
