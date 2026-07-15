@@ -1,5 +1,6 @@
 import { createClient } from "../prismicio";
 import HomePageClient from "./components/HomePageClient";
+import SiteLayout from "./components/SiteLayout";
 import { defaultHomepageData, type HomepageData, type HomepageSection } from "./types";
 import * as prismic from "@prismicio/client";
 
@@ -160,5 +161,13 @@ async function getHomepageData(): Promise<HomepageData> {
 
 export default async function Home() {
   const data = await getHomepageData();
-  return <HomePageClient data={data} />;
+  return (
+    <SiteLayout
+      promoBannerText={data.promoBannerText}
+      footerDescription={data.footer.description}
+      footerCopyright={data.footer.copyright}
+    >
+      <HomePageClient data={data} />
+    </SiteLayout>
+  );
 }
