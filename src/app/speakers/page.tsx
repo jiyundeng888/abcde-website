@@ -1,16 +1,17 @@
 import SiteLayout from "../components/SiteLayout";
 import CategoryPage from "../components/CategoryPage";
-import { categoryData } from "../components/navConfig";
+import { getCategoryPageData } from "../lib/prismicData";
 
 export const metadata = {
   title: "Speakers - ABCDE Car Audio",
   description: "Shop ABCDE speakers - component systems and coaxial speakers for crystal clear car audio.",
 };
 
-export default function SpeakersPage() {
+export default async function SpeakersPage() {
+  const data = await getCategoryPageData("speakers");
   return (
     <SiteLayout>
-      <CategoryPage data={categoryData.speakers} />
+      <CategoryPage data={data} />
     </SiteLayout>
   );
 }
