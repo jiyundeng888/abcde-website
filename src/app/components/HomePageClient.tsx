@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import type { HomepageData } from "../types";
+import { getCategoryRoute, getProductRoute } from "./navConfig";
 
 export default function HomePageClient({ data }: { data: HomepageData }) {
   const [visibleElements, setVisibleElements] = useState<Set<number>>(new Set());
@@ -44,14 +45,15 @@ export default function HomePageClient({ data }: { data: HomepageData }) {
             <div className="categories-grid">
               {section.categories.map((cat, i) => {
                 const idx = fadeIndex++;
+                const catRoute = getCategoryRoute(cat.name);
                 return (
-                  <div key={i} className={`category-card fade-in ${visibleElements.has(idx) ? "visible" : ""}`} data-index={idx}>
+                  <Link key={i} href={catRoute} className={`category-card fade-in ${visibleElements.has(idx) ? "visible" : ""}`} data-index={idx} style={{ textDecoration: "none", color: "inherit" }}>
                     <img src={cat.image} alt={cat.name} loading="lazy" />
                     <div className="category-card-overlay">
                       <div className="category-name">{cat.name}</div>
                       <div className="category-shop-now">Shop Now</div>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
@@ -82,8 +84,9 @@ export default function HomePageClient({ data }: { data: HomepageData }) {
             <div className="products-grid">
               {section.products.map((p, i) => {
                 const idx = fadeIndex++;
+                const productRoute = getProductRoute(p.name, p.series);
                 return (
-                  <div key={i} className={`product-card fade-in ${visibleElements.has(idx) ? "visible" : ""}`} data-index={idx}>
+                  <Link key={i} href={productRoute} className={`product-card fade-in ${visibleElements.has(idx) ? "visible" : ""}`} data-index={idx} style={{ textDecoration: "none", color: "inherit" }}>
                     <div className="product-image">
                       {p.badge && <span className="product-badge">{p.badge}</span>}
                       <img src={p.image} alt={p.name} loading="lazy" />
@@ -101,7 +104,7 @@ export default function HomePageClient({ data }: { data: HomepageData }) {
                         <span className="original">{p.originalPrice}</span>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
