@@ -66,8 +66,11 @@ export default function CategoryPage({ data }: { data: CategoryPageData }) {
         <div className="products-grid">
           {data.products.map((p, i) => {
             const idx = fadeIndex++;
+            const productPath = `/${data.title.toLowerCase().replace(/[^a-z]/g, "")}/${p.slug}/`;
+            // Map category title to correct URL path
+            const categoryPath = data.title === "Sleds" ? "/sleds/" : `/${data.title.toLowerCase()}/`;
             return (
-              <div key={i} className={`product-card fade-in ${visibleElements.has(idx) ? "visible" : ""}`} data-index={idx}>
+              <Link key={i} href={`${categoryPath}${p.slug}/`} className={`product-card fade-in ${visibleElements.has(idx) ? "visible" : ""}`} data-index={idx} style={{ textDecoration: "none", color: "inherit" }}>
                 <div className="product-image">
                   {p.badge && <span className="product-badge">{p.badge}</span>}
                   <img src={p.image} alt={p.name} loading="lazy" />
@@ -85,7 +88,7 @@ export default function CategoryPage({ data }: { data: CategoryPageData }) {
                     <span className="original">{p.originalPrice}</span>
                   </div>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>
