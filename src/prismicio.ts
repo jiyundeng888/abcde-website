@@ -5,13 +5,17 @@ import type { ClientConfig } from "@prismicio/client";
 // The Prismic repository name
 export const repositoryName = "abcde-website";
 
+// In development mode, disable caching so content is always fresh from Prismic.
+// In production, use force-cache for performance.
+const isDev = process.env.NODE_ENV === "development";
+
 // Create a Prismic client for fetching content
 // Uses createClient pattern to support preview/live editing via enableAutoPreviews
 export const createClient = (config: ClientConfig = {}) => {
   const client = prismic.createClient(repositoryName, {
     fetchOptions: {
-      next: { tags: ["prismic"] },
-      cache: "force-cache",
+      next: { tags: ["prismic"], revalidate: isDev ? 0 : undefined },
+      cache: isDev ? "no-store" : "force-cache",
     },
     ...config,
   });
