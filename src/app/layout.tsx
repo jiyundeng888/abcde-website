@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Source_Serif_4, Inter } from "next/font/google";
 import { PrismicPreview } from "@prismicio/next";
 import { repositoryName } from "../prismicio";
+import LivePreview from "./components/LivePreview";
 import "./globals.css";
 
 const sourceSerif = Source_Serif_4({
@@ -36,6 +37,7 @@ export default function RootLayout({
       <body>
         {children}
         <PrismicPreview repositoryName={repositoryName} />
+        <LivePreview />
       </body>
     </html>
   );
