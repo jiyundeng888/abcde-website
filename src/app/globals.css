@@ -563,6 +563,7 @@ a {
 }
 
 .category-card {
+  display: block;
   position: relative;
   overflow: hidden;
   aspect-ratio: 4/5;
@@ -660,6 +661,7 @@ a {
 }
 
 .product-card {
+  display: block;
   background: var(--ivory-light);
   border: 1px solid var(--cloud-light);
   overflow: hidden;
