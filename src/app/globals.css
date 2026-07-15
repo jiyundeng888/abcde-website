@@ -278,6 +278,15 @@ a {
   width: 60%;
 }
 
+.desktop-nav li a.nav-active {
+  color: var(--clay);
+  font-weight: 600;
+}
+
+.desktop-nav li a.nav-active::after {
+  width: 60%;
+}
+
 /* ==================== MOBILE MENU ==================== */
 .mobile-menu-overlay {
   display: none;
