@@ -21,6 +21,30 @@ export function getRouteByName(name: string): string {
   return item ? item.path : "/";
 }
 
+// Map category card names (which may differ from nav names) to routes
+export function getCategoryRoute(name: string): string {
+  const lower = name.toLowerCase();
+  if (lower.includes("amplifier")) return "/amplifiers/";
+  if (lower.includes("speaker")) return "/speakers/";
+  if (lower.includes("subwoofer") || lower.includes("sub")) return "/subwoofers/";
+  if (lower.includes("sled") || lower.includes("enclosure")) return "/sleds/";
+  if (lower.includes("wiring") || lower.includes("accessor") || lower.includes("kit")) return "/sleds/";
+  if (lower.includes("support") || lower.includes("faq") || lower.includes("contact")) return "/support/";
+  return "/";
+}
+
+// Map a product's series/name to the most relevant category page
+export function getProductRoute(productName: string, series: string): string {
+  const combined = (productName + " " + series).toLowerCase();
+  // Check wiring/kit/gauge first (before "amp" which appears in "Amp Kit")
+  if (combined.includes("wiring") || combined.includes("gauge") || (combined.includes("kit") && !combined.includes("amplifier"))) return "/sleds/";
+  if (combined.includes("sled") || combined.includes("enclosure") || combined.includes("package")) return "/sleds/";
+  if (combined.includes("meso-12") || combined.includes("meso-10") || combined.includes("meso-15") || combined.includes("subwoofer") || combined.includes("sub")) return "/subwoofers/";
+  if (combined.includes("speaker") || combined.includes("tweeter") || combined.includes("6x9") || combined.includes("meso-6")) return "/speakers/";
+  if (combined.includes("amplifier") || combined.includes("2000.1d") || combined.includes("200.4d") || combined.includes("1000.4d") || combined.includes("1200.1d")) return "/amplifiers/";
+  return "/amplifiers/";
+}
+
 // Category data for product category pages
 export interface CategoryPageData {
   title: string;
