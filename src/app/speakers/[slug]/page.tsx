@@ -1,17 +1,15 @@
 import { notFound } from "next/navigation";
 import SiteLayout from "../../components/SiteLayout";
 import ProductDetailPage from "../../components/ProductDetailPage";
-import { productDetails, getProductDetail, getRelatedProducts } from "../../components/navConfig";
+import { getProductDetailData, getRelatedProductsFromPrismic, getProductSlugsForCategory } from "../../lib/prismicData";
 
 export function generateStaticParams() {
-  return Object.keys(productDetails)
-    .filter((slug) => productDetails[slug].categorySlug === "speakers")
-    .map((slug) => ({ slug }));
+  return getProductSlugsForCategory("speakers").map((slug) => ({ slug }));
 }
 
 export function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-  return params.then((resolvedParams) => {
-    const product = getProductDetail(resolvedParams.slug);
+  return params.then(async (resolvedParams) => {
+    const product = await getProductDetailData(resolvedParams.slug, "speakers");
     return {
       title: product ? `${product.name} - ABCDE Car Audio` : "Product - ABCDE Car Audio",
       description: product ? product.shortDesc : "ABCDE Car Audio product",
@@ -21,11 +19,11 @@ export function generateMetadata({ params }: { params: Promise<{ slug: string }>
 
 export default async function SpeakerProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const product = getProductDetail(slug);
-  if (!product || product.categorySlug !== "speakers") {
+  const product = await getProductDetailData(slug, "speakers");
+  if (!product) {
     notFound();
   }
-  const relatedProducts = getRelatedProducts("speakers", slug);
+  const relatedProducts = await getRelatedProductsFromPrismic("speakers", slug);
   return (
     <SiteLayout>
       <ProductDetailPage product={product} relatedProducts={relatedProducts} />
